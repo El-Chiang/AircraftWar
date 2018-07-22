@@ -148,14 +148,18 @@ bool GameScene::init() {
 	scheduleUpdate();
 	//定时创建子弹
 	schedule(schedule_selector(GameScene::createBullet), TIME_BREAK_1);
+
 	// RedMode：定时创建敌机子弹 
 	// schedule(schedule_selector(GameScene::createEnemyBullet), TIME_BREAK_2);
+
 	//定时创建敌机
 	schedule(schedule_selector(GameScene::createSmallEnemy), TIME_BREAK_2, CC_REPEAT_FOREVER, CREATE_SMALL_DELAY);
 	schedule(schedule_selector(GameScene::createMiddleEnemy), TIME_BREAK_4, CC_REPEAT_FOREVER, CREATE_MIDDLE_DELAY);
 	schedule(schedule_selector(GameScene::createBigEnemy), TIME_BREAK_5, CC_REPEAT_FOREVER, CREATE_BIG_DELAY);
 	schedule(schedule_selector(GameScene::createUFO), TIME_BREAK_6, CC_REPEAT_FOREVER, CREATE_UFO_DELAY);
 
+	// BlueMode: 定时移动敌机
+	// this->schedule(schedule_selector(GameScene::moveEnemy), 0.5f, CC_REPEAT_FOREVER, 0);
 	return true;
 }
 
@@ -214,11 +218,11 @@ void GameScene::update(float delta) {
 	}
 
 	// 检测敌机是否出屏幕底界
-	for (auto eneny : m_enemys) {
+	for (auto enemy : m_enemys) {
 		eneny->move();
-		if (eneny->getPositionY() <= 0 - eneny->getContentSize().height / 2) {
-			this->removeChild(eneny);
-			removableEnemys.pushBack(eneny);
+		if (enemy->getPositionY() <= 0 - enemy->getContentSize().height / 2) {
+			this->removeChild(enemy);
+			removableEnemys.pushBack(enemy);
 		}
 	}
 
@@ -294,11 +298,7 @@ void GameScene::update(float delta) {
 			auto heart = this->getChildByTag(HEART_TAG + this->planeHitNum);
 			heart->removeFromParent();
 		}
-
-	}
-
-	// 敌机子弹与飞机的碰撞
-	
+	}	
 
 	// 移除子弹
 	for (auto bullet : removableBullets) {
@@ -429,6 +429,14 @@ void GameScene::createUFO(float) {
 2.当炸弹数为1时，只显示菜单项
 3.当菜单项为3时，显示菜单项和标签，更新标签内容
 */
+
+void GameScene::moveEnemy(float)
+{
+	for (auto enemy : m_enemys)
+	{
+		enemy->avoidMove();
+	}
+}
 
 void GameScene::updateBomb() {
 

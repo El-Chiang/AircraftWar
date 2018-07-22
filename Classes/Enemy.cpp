@@ -101,7 +101,15 @@ void Enemy::move() {
 
 void Enemy::avoidMove()
 {
-	this->setPosition(this->getPositionX(), this->getPositionY() + this->m_speed);
+	int direction = (rand() % 2) ? 1 : 0;
+	auto move1 = MoveBy::create(1.5, Vec2(VISIBLE_SIZE.width - this->getPositionX() - 64, -80));  // ÏòÓÒ
+	auto move2 = MoveBy::create(1.5, Vec2(-this->getPositionX() + 64, -80));  // Ïò×ó
+	if (this->getPositionX() >= VISIBLE_SIZE.width - this->getContentSize().width)
+		this->runAction(Sequence::create(move2, move1, nullptr));
+	else if (this->getPositionX() <= this->getContentSize().width)
+		this->runAction(Sequence::create(move1, move2, nullptr));
+	else
+		rand() % 2 ? this->runAction(Sequence::create(move1, move2, nullptr)) : this->runAction(Sequence::create(move2, move1, nullptr));
 }
 
 /*

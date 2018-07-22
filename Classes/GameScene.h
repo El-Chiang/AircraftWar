@@ -34,6 +34,8 @@ private:
 	void createMiddleEnemy(float);
 	void createBigEnemy(float);
 	void createUFO(float);
+
+	void moveEnemy(float);
 	void updateBomb();
 	void gameOver();
 
