@@ -272,6 +272,10 @@ void GameScene::update(float delta) {
 			if (enemy->getBoundingBox().intersectsRect(bullet->getBoundingBox())) {
 				enemy->hit();
 				if (enemy->hit()) {
+					// 粒子特效
+					auto ps = ParticleSystemQuad::create("bomb.plist");
+					ps->setPosition(Point(enemy->getPositionX(), enemy->getPositionY()));
+					this->addChild(ps);
 					removableEnemys.pushBack(enemy);
 					// 更新得分
 					m_totalScore += enemy->getScore();

@@ -81,17 +81,9 @@ void Enemy::down() {
 		break;
 	}
 
-	//2.将动画封装为动作
 	auto animator = Animate::create(ani);
-	//动作函数序列
-	/*auto seq = Sequence::create(animator, CallFuncN::create([this](Node *node) {
-	this->removeChild(node);
-	}), nullptr);
-
-	*/
 	auto seq = Sequence::create(animator, RemoveSelf::create(), NULL);
 	this->runAction(seq);
-	//3.精灵运行动作
 	this->runAction(animator);
 }
 
