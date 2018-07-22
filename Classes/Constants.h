@@ -14,6 +14,7 @@
 #define MENU_TAG 12
 #define BOMBCOUNT_TAG 13
 #define ITEMBOMB_TAG 20
+#define HEART_TAG 200
 
 //ZORDER
 #define BACKGROUND_ZORDER -1

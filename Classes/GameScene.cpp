@@ -30,7 +30,7 @@ bool GameScene::init() {
 	auto plane = Sprite::createWithSpriteFrameName("hero1.png");
 	plane->setPosition(VISIBLE_ORIGIN + VISIBLE_SIZE / 2);
 	this->addChild(plane, FOREROUND_ZORDER, PLANE_TAG);
-
+	planeHitNum = 0;
 
 	//给飞机去创建动画
 	//1.创建动画
@@ -122,7 +122,7 @@ bool GameScene::init() {
 		if (Director::getInstance()->isPaused()) return;
 		if (this->m_totalBombCount <= 0) return;
 		AudioEngine::play2d("use_bomb.mp3", 1, 4);
-		//if (this->IsPause==0) {
+		
 		if (this->IsGameOver) return;
 
 		for (auto enemy : this->m_enemys) {
@@ -136,15 +136,12 @@ bool GameScene::init() {
 		m_totalBombCount--;
 		this->updateBomb();
 		this->m_enemys.clear();
-		//}
 
 	});
 
 	auto lblCount = Label::createWithBMFont("font.fnt", StringUtils::format("X%d", m_totalBombCount));
 	lblCount->setPosition(35 + lblCount->getContentSize().width / 2, 32);
-	//lblX->setPosition(20, bomb->getPositionY() + lblX->getContentSize().height);
 	this->addChild(lblCount, UI_ZORDER, BOMBCOUNT_TAG);
-	//lblX->setColor(Color3B(200, 2, 100));
 	lblCount->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
 	//暂停菜单
 	auto SpPauseNormal = Sprite::createWithSpriteFrameName("game_pause_nor.png");
@@ -182,7 +179,7 @@ bool GameScene::init() {
 	{
 		auto heart = Sprite::create("heart.png");
 		heart->setPosition(Point(VISIBLE_SIZE.width * 3 / 5 + i * 36, VISIBLE_SIZE.height * 15 / 16));
-		heart->setTag(200 + i);
+		heart->setTag(HEART_TAG + i + 1);
 		addChild(heart, 1);
 	}
 
@@ -198,6 +195,7 @@ bool GameScene::init() {
 
 	return true;
 }
+
 //连续动起来
 void GameScene::update(float delta) {
 	auto bg = this->getChildByTag(1);
@@ -219,26 +217,23 @@ void GameScene::update(float delta) {
 	Vector<Sprite *> removableBullets;
 	Vector<Enemy *> removableEnemys;
 	Vector<Sprite *> removableUfos;
-	/*Vector<Enemy *> removableEnemys2;
-	Vector<Enemy *> removableEnemys3;*/
-	//遍历子弹
+
+	// 遍历子弹
 	for (auto bullet : m_bullets)
 	{
 		bullet->setPositionY(bullet->getPositionY() + BULLET_SPEED);
-		//检查子弹是否出屏幕顶部
+		// 检查子弹是否出屏幕顶部
 		if (bullet->getPositionY() >= VISIBLE_SIZE.height + bullet->getContentSize().height / 2) {
 			this->removeChild(bullet);
-			//不能在遍历集合时，修改集合的成员变量，所以仅仅是把无效子弹存放到临时集合中，等便利结束之后再从集合中移除
 			removableBullets.pushBack(bullet);
 		}
 	}
 
-	////遍历敌机
+	// 遍历敌机
 	for (auto eneny : m_enemys) {
 		eneny->move();
 		if (eneny->getPositionY() <= 0 - eneny->getContentSize().height / 2) {
 			this->removeChild(eneny);
-			//不能在遍历集合时，修改集合的成员变量，所以仅仅是把无效子弹存放到临时集合中，等便利结束之后再从集合中移除
 			removableEnemys.pushBack(eneny);
 		}
 	}
@@ -246,14 +241,13 @@ void GameScene::update(float delta) {
 	// 遍历道具
 	for (auto Ufo : m_UFO)
 	{
-
-
 		if (Ufo->getPositionY() >= 600) {
 			Ufo->setPositionY(Ufo->getPositionY() - 1);
 		}
 		else {
 			Ufo->setPositionY(Ufo->getPositionY() - UFO_SPEED);
 		}
+
 		// 检查道具是否出屏幕顶部或者接触到飞机
 		if (Ufo->getPositionY() <= 0 - Ufo->getContentSize().height / 2) {
 			this->removeChild(Ufo);
@@ -268,9 +262,6 @@ void GameScene::update(float delta) {
 				m_totalBombCount++;
 				this->updateBomb();
 			}
-
-			// schedule(schedule_selector(GameScene::createTwoBullet), TIME_BREAK_1, 50,1);
-			// 不能在遍历集合时，修改集合的成员变量，所以仅仅是把无效子弹存放到临时集合中，等便利结束之后再从集合中移除
 			removableUfos.pushBack(Ufo);
 		}
 	}
@@ -282,14 +273,12 @@ void GameScene::update(float delta) {
 				enemy->hit();
 				if (enemy->hit()) {
 					removableEnemys.pushBack(enemy);
-					//更新得分
-					m_totalScore += enemy->getScore();
+					m_totalScore += enemy->getScore();  // 更新得分
+					log("score: %d", m_totalScore);
 					auto nodeScore = this->getChildByTag(LBL_SCORE_TAG);
 					auto lblScore = dynamic_cast<Label *>(nodeScore);
 					std::string strScore = StringUtils::format("%d", m_totalScore);
 					lblScore->setString(strScore);
-
-					//lblScore->setColor(Color3B(200, 2, 100));
 				}
 
 				removableBullets.pushBack(bullet);
@@ -298,41 +287,18 @@ void GameScene::update(float delta) {
 			}
 		}
 		if (enemy->getBoundingBox().intersectsRect(plane->getBoundingBox())) {
-			//1.执行爆炸动画	
-			AudioEngine::pauseAll();
-			this->gameOver();
-			this->IsGameOver = true;
-
-			//this->removeAllChildren();
-
-			//
-			/*auto ani = Animation::create();
-
-			//  b.添加动画帧,从精灵帧缓存中查找出名字
-			for (int i = 0; i < 4; i++) {
-			auto frameName = StringUtils::format("hero_blowup_n%d.png", i + 1);
-			ani->addSpriteFrame(CCSpriteFrameCache::getInstance()->getSpriteFrameByName(frameName));
+			removableEnemys.pushBack(enemy);
+			enemy->down();
+			this->planeHitNum++;
+			if (planeHitNum >= 3)
+			{
+				// 执行爆炸动画	
+				AudioEngine::pauseAll();
+				this->gameOver();
+				this->IsGameOver = true;
 			}
-			//  c.设置动画切换时长
-			ani->setDelayPerUnit(TIME_BREAK_3);
-			//  d.设置迭代次数
-			ani->setLoops(3);
-			//2.将动画封装为动作
-			auto seq = Sequence::create(Animate::create(ani), CallFunc::create([this]() {
-			//场景跳转
-			auto scene = OverScene::createScene(this->m_totalScore);
-			Director::getInstance()->replaceScene(scene);
-			}), nullptr);
-			plane->runAction(seq);*/
-			//plane->runAction(animator);
-
-			//2.设置成员变量，isOver为true
-			//3.停止所有定时器
-			//this->unscheduleAllSelectors();
-			//4.跳转结束场景
-			//auto scene = OverScene::createScene(this->m_totalScore);
-			//Director::getInstance()->replaceScene(scene);
-
+			auto heart = this->getChildByTag(HEART_TAG + this->planeHitNum);  // 减一条命
+			heart->removeFromParent();
 		}
 
 	}
