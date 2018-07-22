@@ -255,12 +255,20 @@ void GameScene::update(float delta) {
 		}
 		if (plane->getBoundingBox().intersectsRect(Ufo->getBoundingBox())) {
 			this->removeChild(Ufo);
-			if (this->m_ufoType) {
+			if (this->m_ufoType == UFO1) {
 				m_doubleBulletCount = DOUBLE_BULLET_COUNT;
 			}
-			else if (m_totalBombCount<3) {
+			if ((this->m_ufoType == UFO2) && (m_totalBombCount < 3)) {
 				m_totalBombCount++;
 				this->updateBomb();
+			}
+			if (this->m_ufoType == UFO3 && this->planeHitNum > 0)
+			{
+				auto heart = Sprite::create("heart.png");
+				heart->setTag(HEART_TAG + planeHitNum);
+				planeHitNum--;
+				heart->setPosition(Point(VISIBLE_SIZE.width * 3 / 5 + planeHitNum * 36, VISIBLE_SIZE.height * 15 / 16));
+				this->addChild(heart);
 			}
 			removableUfos.pushBack(Ufo);
 		}
@@ -385,15 +393,27 @@ void GameScene::createBigEnemy(float) {
 
 ///道具
 void GameScene::createUFO(float) {
-	this->m_ufoType = rand() % 2;
-	std::string frameName = this->m_ufoType ? "ufo1.png" : "ufo2.png";
-	auto Ufo = Sprite::createWithSpriteFrameName(frameName);
-
+	int r = rand() % 6;
+	Sprite* Ufo;
+	if (r >= 3)
+	{
+		Ufo = Sprite::createWithSpriteFrameName("ufo1.png");
+		this->m_ufoType = UFO1;
+	}
+	else if (r >= 1)
+	{
+		Ufo = Sprite::createWithSpriteFrameName("ufo2.png");
+		this->m_ufoType = UFO2;
+	}
+	else
+	{
+		Ufo = Sprite::create("heart.png");
+		this->m_ufoType = UFO3;
+	}
 	auto minX = Ufo->getContentSize().width / 2;
 	auto maxX = VISIBLE_SIZE.width - minX;
 	auto x = rand() % (int)(maxX - minX + 1) + minX;
 	auto y = VISIBLE_SIZE.height + Ufo->getContentSize().height / 2;
-	//auto x2 = rand() % (int)(maxX2 - minX2 + 1) + minX2;
 	Ufo->setPosition(x, y);
 	this->addChild(Ufo, FOREROUND_ZORDER);
 	//新建的道具加入集合
