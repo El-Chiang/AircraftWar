@@ -219,7 +219,7 @@ void GameScene::update(float delta) {
 
 	// 检测敌机是否出屏幕底界
 	for (auto enemy : m_enemys) {
-		eneny->move();
+		enemy->move();
 		if (enemy->getPositionY() <= 0 - enemy->getContentSize().height / 2) {
 			this->removeChild(enemy);
 			removableEnemys.pushBack(enemy);
@@ -257,6 +257,10 @@ void GameScene::update(float delta) {
 				planeHitNum--;
 				heart->setPosition(Point(VISIBLE_SIZE.width * 3 / 5 + planeHitNum * 36, VISIBLE_SIZE.height * 15 / 16));
 				this->addChild(heart);
+			}
+			if (this->m_ufoType == UFO4)
+			{
+				schedule(schedule_selector(GameScene::createEnemyBullet), TIME_BREAK_2, 10, 0);
 			}
 			removableUfos.pushBack(Ufo);
 		}
@@ -423,12 +427,6 @@ void GameScene::createUFO(float) {
 	//新建的道具加入集合
 	m_UFO.pushBack(Ufo);
 }
-
-/*
-1.当炸弹数为零时，菜单项和标签都不显示
-2.当炸弹数为1时，只显示菜单项
-3.当菜单项为3时，显示菜单项和标签，更新标签内容
-*/
 
 void GameScene::moveEnemy(float)
 {
