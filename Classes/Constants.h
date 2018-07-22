@@ -32,11 +32,13 @@
 #define CREATE_SMALL_DELAY 3
 #define CREATE_MIDDLE_DELAY 10
 #define CREATE_BIG_DELAY 20
+//#define CREATE_RED_DELAY 20
+//#define CREATE_BLUE_DELAY 20
 #define CREATE_UFO_DELAY 2
 
 //速度
 #define BACKGROUND_SPEED 0.8f
-#define SMALL_ENEMY_SPEED 4
+#define SMALL_ENEMY_SPEED 3
 #define MIDDLE_ENEMY_SPEED 2
 #define BIG_ENEMY_SPEED 1
 #define BULLET_SPEED 6
@@ -46,6 +48,8 @@
 #define UFO1 1
 #define UFO2 2
 #define UFO3 3
+#define UFO4 4
+#define UFO5 5
 
 //双子弹的次数
 #define DOUBLE_BULLET_COUNT 30

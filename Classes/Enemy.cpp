@@ -54,7 +54,7 @@ bool Enemy::initWithEnemyType(const EnemyType& type) {
 Enemy*  Enemy::create(const EnemyType& type) {
 	auto enemy = new Enemy();
 	if (enemy && enemy->initWithEnemyType(type)) {
-		enemy->autorelease();//放入自动计数器
+		enemy->autorelease();  // 放入自动计数器
 		return enemy;
 	}
 	delete enemy;
@@ -96,6 +96,11 @@ void Enemy::down() {
 }
 
 void Enemy::move() {
+	this->setPosition(this->getPositionX(), this->getPositionY() + this->m_speed);
+}
+
+void Enemy::avoidMove()
+{
 	this->setPosition(this->getPositionX(), this->getPositionY() + this->m_speed);
 }
 

@@ -26,43 +26,31 @@ bool GameScene::init() {
 	AudioEngine::play2d("game_music.mp3");
 
 	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("shoot.plist");
-	//添加飞机
+
+	// 添加飞机
 	auto plane = Sprite::createWithSpriteFrameName("hero1.png");
 	plane->setPosition(VISIBLE_ORIGIN + VISIBLE_SIZE / 2);
 	this->addChild(plane, FOREROUND_ZORDER, PLANE_TAG);
 	planeHitNum = 0;
 
-	//给飞机去创建动画
-	//1.创建动画
+	// 创建飞机动画
 	auto ani = AnimationCache::getInstance()->getAnimation(HERO_FLY_ANIMATION);
-	//2.将动画封装为动作
 	auto animator = Animate::create(ani);
-	//3.精灵运行动作
 	plane->runAction(animator);
 
-	//添加触摸事件的处理
-	//1.创建监听对象
+	// 触摸事件监听
 	auto listener = EventListenerTouchOneByOne::create();
-	/*2.分解事件，处理逻辑
-	a.触摸开始时
-	lambda表达式的[]部分控制对外部变量的访问，可以一个个的传递
-	也可以写[=]等号，表示外部所有变量都按值传递，也可以访问，但不能修改
-	[&] 地址符，可以修改外部变量*/
 	listener->onTouchBegan = [=](Touch* t, Event* e) {
 		Vec2 touchPos = t->getLocation();
 		this->m_offset = plane->getPosition() - touchPos;
-		//判断触摸点是否在plane图片的矩形边框内，BoundingBox()就是矩形边框
 		bool isContains = plane->getBoundingBox().containsPoint(touchPos);
 		return isContains && !Director::getInstance()->isPaused() && !this->IsGameOver;
 	};
-	//b.持续触摸并移动
 	listener->onTouchMoved = [=](Touch* t, Event* e) {
-		//log("moveing");		
 		Vec2 touchPos = t->getLocation();
-		//if (this->IsPause == 0) {
 		if (this->IsGameOver) return;
 		plane->setPosition(touchPos + this->m_offset);
-		Vec2 deltaPos = t->getDelta();//上次触摸点与当前触摸点的向量差
+		Vec2 deltaPos = t->getDelta();
 		auto minX = plane->getContentSize().width / 2;
 		auto minY = plane->getContentSize().height / 2;
 		auto maxX = VISIBLE_SIZE.width - minX;
@@ -73,58 +61,34 @@ bool GameScene::init() {
 		plane->setPosition(x, y);
 		//}			
 	};
-	//c.触摸结束
 	listener->onTouchEnded = [](Touch* t, Event* e) {
-		//log("ending");
 	};
-	//3.注册监听事件到分发器
 	getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, plane);
-	//getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, plane);
-	//bg->setPosition(origin.x + size.width / 2, origin.y + size.height / 2);
-	//bg->setPosition(origin+size / 2);
-	//设置定位点在自身右下角
-	//创建 定位 添加
 	bg->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 	//开启抗锯齿
 	bg->getTexture()->setAliasTexParameters();
-	//bg->setPositionX(origin.x + size.width / 2);
-	//bg->setPositionY(origin.y + bg->getContentSize().height / 2);
 	this->addChild(bg, BACKGROUND_ZORDER, BACKGROUND_TAG_1);
-
 	auto bg2 = Sprite::createWithSpriteFrameName("background.png");
 	bg2->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 	bg2->setPositionY(bg->getContentSize().height);
 	bg2->getTexture()->setAliasTexParameters();
 	this->addChild(bg2, BACKGROUND_ZORDER, BACKGROUND_TAG_2);
 
-	/*auto ufo = Sprite::createWithSpriteFrameName("ufo1.png");
-	auto minX = ufo->getContentSize().with / 2;
-	auto maxX = VISIBLE_SIZE.width - ufo->getContentSize().width / 2;
-	ufo->setPosition(rand()(int)(maxX - minX + 1) + minX, VISIBLE_SIZE.height + ufo->getContentSize().height / 2);
-	this->addChild(ufo, FOREROUND_ZORDER, UFO_TAG);
-	auto move1 = MoveBy::create(1, Vec2(0, -300));
-	auto move2 = MOveTo::create(1.5f, Vec2(ufo->getPositionX(), ufo->getContentSize().height));
-	ufo->runAction(Sequence(move1, move1->reverse(), move2), nullptr);
-	*/
-
-	////UI
-	//计分标签
+	// UI
+	// 计分标签
 	auto lblScore = Label::createWithBMFont("font.fnt", StringUtils::format("%d", this->m_totalScore));
 	lblScore->setPosition(20, VISIBLE_SIZE.height - lblScore->getContentSize().height - 10);
 	this->addChild(lblScore, UI_ZORDER, LBL_SCORE_TAG);
 	lblScore->setColor(Color3B(200, 2, 100));
-	//lblScore->setAlignment(TextHAlignment::LEFT);
 	lblScore->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
-	//炸弹菜单,菜单有很多功能1
+	// 炸弹菜单
 	auto normalBomb = Sprite::createWithSpriteFrameName("bomb.png");
 	auto itemBomb = MenuItemSprite::create(normalBomb, normalBomb, [=](Ref *) {
 		if (Director::getInstance()->isPaused()) return;
 		if (this->m_totalBombCount <= 0) return;
 		AudioEngine::play2d("use_bomb.mp3", 1, 4);
-		
 		if (this->IsGameOver) return;
-
 		for (auto enemy : this->m_enemys) {
 			enemy->down();
 			m_totalScore += enemy->getScore();
@@ -136,14 +100,13 @@ bool GameScene::init() {
 		m_totalBombCount--;
 		this->updateBomb();
 		this->m_enemys.clear();
-
 	});
 
 	auto lblCount = Label::createWithBMFont("font.fnt", StringUtils::format("X%d", m_totalBombCount));
 	lblCount->setPosition(35 + lblCount->getContentSize().width / 2, 32);
 	this->addChild(lblCount, UI_ZORDER, BOMBCOUNT_TAG);
 	lblCount->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
-	//暂停菜单
+	// 暂停菜单
 	auto SpPauseNormal = Sprite::createWithSpriteFrameName("game_pause_nor.png");
 	auto SpPauseSelected = Sprite::createWithSpriteFrameName("game_pause_pressed.png");
 	auto SpResumeNormal = Sprite::createWithSpriteFrameName("game_resume_nor.png");
@@ -152,10 +115,8 @@ bool GameScene::init() {
 	auto itemResume = MenuItemSprite::create(SpResumeNormal, SpResumeSelected);
 
 	auto toggle = MenuItemToggle::createWithCallback([this](Ref *sender) {
-		//获取当前选择项的下标（0开始）
 		AudioEngine::play2d("button.mp3");
 		AudioEngine::pauseAll();
-		//AudioEngine::stop("game_music.mp3");
 		int index = dynamic_cast<MenuItemToggle *>(sender)->getSelectedIndex();
 		if (index) {
 			Director::getInstance()->pause();
@@ -187,6 +148,8 @@ bool GameScene::init() {
 	scheduleUpdate();
 	//定时创建子弹
 	schedule(schedule_selector(GameScene::createBullet), TIME_BREAK_1);
+	// RedMode：定时创建敌机子弹 
+	// schedule(schedule_selector(GameScene::createEnemyBullet), TIME_BREAK_2);
 	//定时创建敌机
 	schedule(schedule_selector(GameScene::createSmallEnemy), TIME_BREAK_2, CC_REPEAT_FOREVER, CREATE_SMALL_DELAY);
 	schedule(schedule_selector(GameScene::createMiddleEnemy), TIME_BREAK_4, CC_REPEAT_FOREVER, CREATE_MIDDLE_DELAY);
@@ -196,40 +159,61 @@ bool GameScene::init() {
 	return true;
 }
 
-//连续动起来
 void GameScene::update(float delta) {
 	auto bg = this->getChildByTag(1);
 	auto bg2 = this->getChildByTag(2);
 	auto plane = this->getChildByTag(4);
 
-	//让背景图2跟随图1滚动（取背景1的位置加上背景1的高度）
+	// 背景滚动
 	bg->setPositionY(bg->getPositionY() - BACKGROUND_SPEED);
 	bg2->setPositionY(bg->getPositionY() + bg->getContentSize().height);
-
-	//让背景图2跟随图1滚动（取背景1的位置加上背景1的高度）
 	bg2->setPositionY(bg->getPositionY() + bg->getContentSize().height);
-	//当图2到达底部时，设置图一的y值为0；
 	if (bg2->getPositionY() <= 0)
-	{
 		bg->setPositionY(0);
-	}
 
 	Vector<Sprite *> removableBullets;
 	Vector<Enemy *> removableEnemys;
+	Vector<Sprite *> removableEnemysBullets;
 	Vector<Sprite *> removableUfos;
 
-	// 遍历子弹
+	// 检查子弹是否出屏幕顶部
 	for (auto bullet : m_bullets)
 	{
 		bullet->setPositionY(bullet->getPositionY() + BULLET_SPEED);
-		// 检查子弹是否出屏幕顶部
 		if (bullet->getPositionY() >= VISIBLE_SIZE.height + bullet->getContentSize().height / 2) {
 			this->removeChild(bullet);
 			removableBullets.pushBack(bullet);
 		}
 	}
 
-	// 遍历敌机
+	// 检查敌机子弹是否出边界
+	for (auto bullet : m_enBullets)
+	{
+		bullet->setPositionY(bullet->getPositionY() - BULLET_SPEED);
+		if (plane->getBoundingBox().intersectsRect(bullet->getBoundingBox()))
+		{
+			// 飞机被击中次数+1
+			this->planeHitNum++;
+			// 子弹消失
+			removableEnemysBullets.pushBack(bullet);
+			this->removeChild(bullet);
+			if (planeHitNum >= 3)
+			{
+				AudioEngine::pauseAll();
+				this->gameOver();
+				this->IsGameOver = true;
+			}
+			// 减一条命
+			auto heart = this->getChildByTag(HEART_TAG + this->planeHitNum);
+			heart->removeFromParent();
+		}
+		if (bullet->getPositionY() <= bullet->getContentSize().height / 2) {
+			this->removeChild(bullet);
+			removableEnemysBullets.pushBack(bullet);
+		}
+	}
+
+	// 检测敌机是否出屏幕底界
 	for (auto eneny : m_enemys) {
 		eneny->move();
 		if (eneny->getPositionY() <= 0 - eneny->getContentSize().height / 2) {
@@ -238,7 +222,7 @@ void GameScene::update(float delta) {
 		}
 	}
 
-	// 遍历道具
+	// 检查道具是否出屏幕顶部或者接触到飞机
 	for (auto Ufo : m_UFO)
 	{
 		if (Ufo->getPositionY() >= 600) {
@@ -247,22 +231,22 @@ void GameScene::update(float delta) {
 		else {
 			Ufo->setPositionY(Ufo->getPositionY() - UFO_SPEED);
 		}
-
-		// 检查道具是否出屏幕顶部或者接触到飞机
 		if (Ufo->getPositionY() <= 0 - Ufo->getContentSize().height / 2) {
 			this->removeChild(Ufo);
 			removableUfos.pushBack(Ufo);
 		}
+
+		// 道具碰撞检测
 		if (plane->getBoundingBox().intersectsRect(Ufo->getBoundingBox())) {
 			this->removeChild(Ufo);
-			if (this->m_ufoType == UFO1) {
+			if (this->m_ufoType == UFO1) {  // 双子弹道具
 				m_doubleBulletCount = DOUBLE_BULLET_COUNT;
 			}
-			if ((this->m_ufoType == UFO2) && (m_totalBombCount < 3)) {
+			if ((this->m_ufoType == UFO2) && (m_totalBombCount < 3)) {  // 炸弹道具
 				m_totalBombCount++;
 				this->updateBomb();
 			}
-			if (this->m_ufoType == UFO3 && this->planeHitNum > 0)
+			if (this->m_ufoType == UFO3 && this->planeHitNum > 0)  // 生命道具
 			{
 				auto heart = Sprite::create("heart.png");
 				heart->setTag(HEART_TAG + planeHitNum);
@@ -274,58 +258,70 @@ void GameScene::update(float delta) {
 		}
 	}
 
-	// 碰撞检测
+	// 敌机、子弹的碰撞检测
 	for (auto enemy : m_enemys) {
 		for (auto bullet : m_bullets) {
 			if (enemy->getBoundingBox().intersectsRect(bullet->getBoundingBox())) {
 				enemy->hit();
 				if (enemy->hit()) {
 					removableEnemys.pushBack(enemy);
-					m_totalScore += enemy->getScore();  // 更新得分
-					log("score: %d", m_totalScore);
+					// 更新得分
+					m_totalScore += enemy->getScore();
 					auto nodeScore = this->getChildByTag(LBL_SCORE_TAG);
 					auto lblScore = dynamic_cast<Label *>(nodeScore);
 					std::string strScore = StringUtils::format("%d", m_totalScore);
 					lblScore->setString(strScore);
 				}
-
+				// 子弹消失
 				removableBullets.pushBack(bullet);
-
 				this->removeChild(bullet);
 			}
 		}
+		// 飞机与敌机的碰撞
 		if (enemy->getBoundingBox().intersectsRect(plane->getBoundingBox())) {
 			removableEnemys.pushBack(enemy);
 			enemy->down();
 			this->planeHitNum++;
 			if (planeHitNum >= 3)
 			{
-				// 执行爆炸动画	
+				// 爆炸动画	
 				AudioEngine::pauseAll();
+				// 游戏结束
 				this->gameOver();
 				this->IsGameOver = true;
 			}
-			auto heart = this->getChildByTag(HEART_TAG + this->planeHitNum);  // 减一条命
+			// 减一条命
+			auto heart = this->getChildByTag(HEART_TAG + this->planeHitNum);
 			heart->removeFromParent();
 		}
 
 	}
 
+	// 敌机子弹与飞机的碰撞
+	
+
+	// 移除子弹
 	for (auto bullet : removableBullets) {
 		m_bullets.eraseObject(bullet);
 	}
 	removableBullets.clear();
 
+	for (auto bullet : removableEnemysBullets) {
+		m_enBullets.eraseObject(bullet);
+	}
+	removableEnemysBullets.clear();
+
+	// 移除敌机
 	for (auto enemy : removableEnemys) {
 		m_enemys.eraseObject(enemy);
 	}
 	removableEnemys.clear();
 
+	// 移除道具
 	for (auto Ufo : removableUfos) {
 		m_UFO.eraseObject(Ufo);
 	}
 	removableUfos.clear();
-
 }
 
 void GameScene::createBullet(float) {
@@ -355,18 +351,6 @@ void GameScene::createBullet(float) {
 
 }
 
-/*void GameScene::createTwoBullet(float) {
-auto plane = this->getChildByTag(PLANE_TAG);
-auto bullet1 = Sprite::createWithSpriteFrameName("bullet2.png");
-auto bullet2 = Sprite::createWithSpriteFrameName("bullet2.png");
-bullet1->setPosition(plane->getPositionX() - 32, plane->getPositionY() + 22);
-bullet2->setPosition(plane->getPositionX() + 32, plane->getPositionY() + 22);
-this->addChild(bullet1, FOREROUND_ZORDER);
-this->addChild(bullet2, FOREROUND_ZORDER);
-//新建的子弹加入集合
-m_bullets.pushBack(bullet1);
-m_bullets.pushBack(bullet2);
-}*/
 void GameScene::createEnemy(const EnemyType& type) {
 	auto enemy = Enemy::create(type);
 	auto minX = enemy->getContentSize().width / 2;
@@ -378,7 +362,18 @@ void GameScene::createEnemy(const EnemyType& type) {
 	m_enemys.pushBack(enemy);
 }
 
-///敌机
+void GameScene::createEnemyBullet(float)
+{
+	for (auto enemy : m_enemys)
+	{
+		auto bullet = Sprite::createWithSpriteFrameName("bullet1.png");
+		bullet->setPosition(enemy->getPositionX() + 2, enemy->getPositionY() - enemy->getContentSize().height / 2 - 10);
+		this->addChild(bullet, FOREROUND_ZORDER);
+		// 新建的子弹加入集合
+		m_enBullets.pushBack(bullet);
+	}
+}
+
 void GameScene::createSmallEnemy(float) {
 	this->createEnemy(EnemyType::SMALL_ENEMY);
 }
@@ -391,24 +386,33 @@ void GameScene::createBigEnemy(float) {
 	this->createEnemy(EnemyType::BIG_ENEMY);
 }
 
-///道具
 void GameScene::createUFO(float) {
-	int r = rand() % 6;
+	int r = rand() % 10;
 	Sprite* Ufo;
-	if (r >= 3)
+	if (r >= 7)
 	{
 		Ufo = Sprite::createWithSpriteFrameName("ufo1.png");
 		this->m_ufoType = UFO1;
 	}
-	else if (r >= 1)
+	else if (r >= 5)
 	{
 		Ufo = Sprite::createWithSpriteFrameName("ufo2.png");
 		this->m_ufoType = UFO2;
 	}
-	else
+	else if (r >= 2)
 	{
 		Ufo = Sprite::create("heart.png");
 		this->m_ufoType = UFO3;
+	}
+	else if (r >= 1)
+	{
+		Ufo = Sprite::create("enemy1_red.png");
+		this->m_ufoType = UFO4;
+	}
+	else
+	{
+		Ufo = Sprite::create("enemy1_blue.png");
+		this->m_ufoType = UFO5;
 	}
 	auto minX = Ufo->getContentSize().width / 2;
 	auto maxX = VISIBLE_SIZE.width - minX;

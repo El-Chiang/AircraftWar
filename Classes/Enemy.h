@@ -8,7 +8,9 @@ USING_NS_CC;
 enum class EnemyType {
 	SMALL_ENEMY,
 	MIDDLE_ENEMY,
-	BIG_ENEMY
+	BIG_ENEMY,
+	RED_ENEMY,
+	BLUE_ENEMY
 };
 
 class Enemy :public Sprite {
@@ -17,6 +19,7 @@ public:
 	bool initWithEnemyType(const EnemyType& type);
 	static Enemy* create(const EnemyType& type);
 	void move();
+	void avoidMove();
 	bool hit();
 	void down();
 	//ÒÆ¶¯ËÙ¶È
@@ -28,5 +31,4 @@ public:
 
 private:
 	EnemyType m_type;
-	//float m_speed;
 };

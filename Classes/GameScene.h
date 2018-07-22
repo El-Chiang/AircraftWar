@@ -12,24 +12,24 @@ public:
 	CREATE_FUNC(GameScene);
 	void update(float) override;
 
-	
-
 private:
-	Vec2 m_offset;				//记录触摸点与飞机中心的偏移向量
-	Vector<Sprite *> m_bullets; //存放有效的子弹
-	Vector<Sprite *> m_UFO;     //存放道具
-	Vector<Enemy *> m_enemys;   //存放有效的敌机
-	int m_totalScore;           //总的分数
+	Vec2 m_offset;				// 记录触摸点与飞机中心的偏移向量
+	Vector<Sprite *> m_bullets; // 存放有效的子弹
+	Vector<Sprite *> m_enBullets; // 存放敌机有效子弹
+	Vector<Sprite *> m_UFO;     // 存放道具
+	Vector<Enemy *> m_enemys;   // 存放有效的敌机
+	int m_totalScore;           // 总的分数
 	int planeHitNum;            // 生命值
-	int m_totalBombCount;         //总的炸弹数
-	int m_doubleBulletCount;    //剩余双子弹数目
-	int m_ufoType;              //道具类型
-	void createBullet(float);
-	int IsPause;				//是否暂停；
-	bool IsGameOver;				//游戏结束
+	int m_totalBombCount;         // 总的炸弹数
+	int m_doubleBulletCount;    // 剩余双子弹数目
+	int m_ufoType;              // 道具类型
+	int IsPause;				// 是否暂停；
+	bool IsGameOver;				// 游戏结束
 	
 	//void createTwoBullet(float);
+	void createBullet(float);
 	void createEnemy(const EnemyType&);
+	void createEnemyBullet(float);
 	void createSmallEnemy(float);
 	void createMiddleEnemy(float);
 	void createBigEnemy(float);
