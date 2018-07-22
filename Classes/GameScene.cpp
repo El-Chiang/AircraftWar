@@ -272,7 +272,30 @@ void GameScene::update(float delta) {
 			this->removeChild(Ufo);
 			removableUfos.pushBack(Ufo);
 		}
-
+		if (this->m_ufoType == UFO4) {
+			for (auto bullet : m_bullets) {
+				if (bullet->getBoundingBox().intersectsRect(Ufo->getBoundingBox())) {
+					schedule(schedule_selector(GameScene::createEnemyBullet), TIME_BREAK_2, 10, 0);
+					auto ps = ParticleSystemQuad::create("bomb.plist");  // 粒子特效
+					ps->setPosition(Point(Ufo->getPositionX(), Ufo->getPositionY()));
+					this->addChild(ps);
+					removableUfos.pushBack(Ufo);
+					this->removeChild(Ufo);
+				}
+			}
+		}
+		if (this->m_ufoType == UFO5) {
+			for (auto bullet : m_bullets) {
+				if (bullet->getBoundingBox().intersectsRect(Ufo->getBoundingBox())) {
+					this->schedule(schedule_selector(GameScene::moveEnemy), 0.5f, 20, 0);
+					auto ps = ParticleSystemQuad::create("bomb.plist");  // 粒子特效
+					ps->setPosition(Point(Ufo->getPositionX(), Ufo->getPositionY()));
+					this->addChild(ps);
+					removableUfos.pushBack(Ufo);
+					this->removeChild(Ufo);
+				}
+			}
+		}
 		// 道具碰撞检测
 		if (plane->getBoundingBox().intersectsRect(Ufo->getBoundingBox())) {
 			this->removeChild(Ufo);
@@ -291,10 +314,10 @@ void GameScene::update(float delta) {
 				heart->setPosition(Point(VISIBLE_SIZE.width * 3 / 5 + planeHitNum * 36, VISIBLE_SIZE.height * 15 / 16));
 				this->addChild(heart);
 			}
-			if (this->m_ufoType == UFO4)
+			/*if (this->m_ufoType == UFO4)
 				schedule(schedule_selector(GameScene::createEnemyBullet), TIME_BREAK_2, 10, 0);
 			if (this->m_ufoType == UFO5)
-				this->schedule(schedule_selector(GameScene::moveEnemy), 0.5f, 20, 0);
+				this->schedule(schedule_selector(GameScene::moveEnemy), 0.5f, 20, 0);*/
 			removableUfos.pushBack(Ufo);
 		}
 	}
@@ -306,9 +329,9 @@ void GameScene::update(float delta) {
 				enemy->hit();
 				if (enemy->hit()) {
 					// 粒子特效
-					auto ps = ParticleSystemQuad::create("bomb.plist");
+					/*auto ps = ParticleSystemQuad::create("bomb.plist");
 					ps->setPosition(Point(enemy->getPositionX(), enemy->getPositionY()));
-					this->addChild(ps);
+					this->addChild(ps);*/
 					removableEnemys.pushBack(enemy);
 					// 更新得分
 					m_totalScore += enemy->getScore();
@@ -433,12 +456,12 @@ void GameScene::createUFO(float) {
 	if (r >= 7)
 	{
 		Ufo = Sprite::createWithSpriteFrameName("ufo1.png");
-		this->m_ufoType = UFO1;
+		this->m_ufoType = UFO5;
 	}
 	else if (r >= 5)
 	{
 		Ufo = Sprite::createWithSpriteFrameName("ufo2.png");
-		this->m_ufoType = UFO2;
+		this->m_ufoType = UFO5;
 	}
 	else if (r >= 2)
 	{
