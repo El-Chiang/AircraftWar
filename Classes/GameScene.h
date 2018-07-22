@@ -25,6 +25,7 @@ private:
 	int m_ufoType;              // 道具类型
 	int IsPause;				// 是否暂停；
 	bool IsGameOver;				// 游戏结束
+	int dir;                    // 方向
 	
 	//void createTwoBullet(float);
 	void createBullet(float);
@@ -36,6 +37,7 @@ private:
 	void createUFO(float);
 
 	void moveEnemy(float);
+	void movePlane(float);
 	void updateBomb();
 	void gameOver();
 

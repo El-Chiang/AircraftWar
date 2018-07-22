@@ -32,6 +32,7 @@ bool GameScene::init() {
 	plane->setPosition(VISIBLE_ORIGIN + VISIBLE_SIZE / 2);
 	this->addChild(plane, FOREROUND_ZORDER, PLANE_TAG);
 	planeHitNum = 0;
+	dir = 0;  // 初始不移动
 
 	// 创建飞机动画
 	auto ani = AnimationCache::getInstance()->getAnimation(HERO_FLY_ANIMATION);
@@ -64,8 +65,37 @@ bool GameScene::init() {
 	listener->onTouchEnded = [](Touch* t, Event* e) {
 	};
 	getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, plane);
-	bg->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+	// 键盘事件监听
+	auto listener2 = EventListenerKeyboard::create();
+	listener2->onKeyPressed = [&](EventKeyboard::KeyCode k, Event * e) {
+
+		switch (k)
+		{
+		case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
+			dir = 1;
+			break;
+		case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
+			dir = 2;
+			break;
+		case EventKeyboard::KeyCode::KEY_UP_ARROW:
+			dir = 3;
+			break;
+		case EventKeyboard::KeyCode::KEY_DOWN_ARROW:
+			dir = 4;
+			break;
+		default:
+			dir = 0;
+			break;
+		}
+	};
+	listener2->onKeyReleased = [&](EventKeyboard::KeyCode k, Event * e) {
+		dir = 0;
+	};
+	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener2, this);
+
 	//开启抗锯齿
+	bg->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 	bg->getTexture()->setAliasTexParameters();
 	this->addChild(bg, BACKGROUND_ZORDER, BACKGROUND_TAG_1);
 	auto bg2 = Sprite::createWithSpriteFrameName("background.png");
@@ -157,6 +187,9 @@ bool GameScene::init() {
 	schedule(schedule_selector(GameScene::createMiddleEnemy), TIME_BREAK_4, CC_REPEAT_FOREVER, CREATE_MIDDLE_DELAY);
 	schedule(schedule_selector(GameScene::createBigEnemy), TIME_BREAK_5, CC_REPEAT_FOREVER, CREATE_BIG_DELAY);
 	schedule(schedule_selector(GameScene::createUFO), TIME_BREAK_6, CC_REPEAT_FOREVER, CREATE_UFO_DELAY);
+
+	// 定时通过键盘移动飞机
+	this->schedule(schedule_selector(GameScene::movePlane), 0.02f);
 
 	// BlueMode: 定时移动敌机
 	// this->schedule(schedule_selector(GameScene::moveEnemy), 0.5f, CC_REPEAT_FOREVER, 0);
@@ -437,6 +470,27 @@ void GameScene::moveEnemy(float)
 	for (auto enemy : m_enemys)
 	{
 		enemy->avoidMove();
+	}
+}
+
+void GameScene::movePlane(float t)
+{
+	auto p = this->getChildByTag(PLANE_TAG);
+
+	switch (dir)
+	{
+	case 1:
+		p->runAction(MoveBy::create(0, Point(-5, 0)));
+		break;
+	case 2:
+		p->runAction(MoveBy::create(0, Point(5, 0)));
+		break;
+	case 3:
+		p->runAction(MoveBy::create(0, Point(0, 5)));
+		break;
+	case 4:
+		p->runAction(MoveBy::create(0, Point(0, -5)));
+		break;
 	}
 }
 
