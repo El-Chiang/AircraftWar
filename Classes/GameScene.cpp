@@ -2,7 +2,7 @@
 #include "Constants.h"
 #include "time.h"
 #include "AudioEngine.h"
-//#include "SimpleAudioEngine.h"
+#include "SimpleAudioEngine.h"
 #include "OverScene.h"
 using namespace experimental;
 
@@ -186,7 +186,7 @@ bool GameScene::init() {
 	schedule(schedule_selector(GameScene::createSmallEnemy), TIME_BREAK_2, CC_REPEAT_FOREVER, CREATE_SMALL_DELAY);
 	schedule(schedule_selector(GameScene::createMiddleEnemy), TIME_BREAK_4, CC_REPEAT_FOREVER, CREATE_MIDDLE_DELAY);
 	schedule(schedule_selector(GameScene::createBigEnemy), TIME_BREAK_5, CC_REPEAT_FOREVER, CREATE_BIG_DELAY);
-	schedule(schedule_selector(GameScene::createUFO), TIME_BREAK_6, CC_REPEAT_FOREVER, CREATE_UFO_DELAY);
+	schedule(schedule_selector(GameScene::createUFO), TIME_BREAK_4, CC_REPEAT_FOREVER, CREATE_UFO_DELAY);
 
 	// 定时通过键盘移动飞机
 	this->schedule(schedule_selector(GameScene::movePlane), 0.02f);
@@ -456,12 +456,12 @@ void GameScene::createUFO(float) {
 	if (r >= 7)
 	{
 		Ufo = Sprite::createWithSpriteFrameName("ufo1.png");
-		this->m_ufoType = UFO5;
+		this->m_ufoType = UFO1;
 	}
 	else if (r >= 5)
 	{
 		Ufo = Sprite::createWithSpriteFrameName("ufo2.png");
-		this->m_ufoType = UFO5;
+		this->m_ufoType = UFO2;
 	}
 	else if (r >= 2)
 	{

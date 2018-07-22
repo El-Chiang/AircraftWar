@@ -14,6 +14,7 @@ School practical training: Aircraft war using cocos2d
 - 炸弹UFO：使用炸弹可以清除界面内所有敌机
 - 红色敌机：子弹打到或飞机碰到红色敌机进入Red Mode一段时间
 - 蓝色敌机：子弹打到或飞机碰到蓝色敌机进入Blue Mode一段时间
+- 心：生命值+1
 
 ### 模式
 
