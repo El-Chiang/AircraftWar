@@ -19,10 +19,6 @@ bool GameScene::init() {
 	}
 
 	srand((unsigned int)time(NULL));
-	//auto size = Director::getInstance()->getVisibleSize();
-	//auto origin = Director::getInstance()->getVisibleOrigin();
-	//通过加载精灵集文件，将精灵都缓存到精灵集缓存中
-	//auto bg = Sprite::create("shoot_background.plist");
 	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("shoot_background.plist");
 	auto bg = Sprite::createWithSpriteFrameName("background.png");
 
@@ -47,11 +43,11 @@ bool GameScene::init() {
 	//添加触摸事件的处理
 	//1.创建监听对象
 	auto listener = EventListenerTouchOneByOne::create();
-	//2.分解事件，处理逻辑
-	//a.触摸开始时
-	//lambda表达式的[]部分控制对外部变量的访问，可以一个个的传递
-	//也可以写[=]等号，表示外部所有变量都按值传递，也可以访问，但不能修改
-	//[&] 地址符，可以修改外部变量
+	/*2.分解事件，处理逻辑
+	a.触摸开始时
+	lambda表达式的[]部分控制对外部变量的访问，可以一个个的传递
+	也可以写[=]等号，表示外部所有变量都按值传递，也可以访问，但不能修改
+	[&] 地址符，可以修改外部变量*/
 	listener->onTouchBegan = [=](Touch* t, Event* e) {
 		Vec2 touchPos = t->getLocation();
 		this->m_offset = plane->getPosition() - touchPos;
@@ -181,6 +177,14 @@ bool GameScene::init() {
 	menu->setPosition(itemBomb->getContentSize() / 2);
 	this->addChild(menu, UI_ZORDER, MENU_TAG);
 
+	// 生命
+	for (int i = 0; i < 3; i++)
+	{
+		auto heart = Sprite::create("heart.png");
+		heart->setPosition(Point(VISIBLE_SIZE.width * 3 / 5 + i * 36, VISIBLE_SIZE.height * 15 / 16));
+		heart->setTag(200 + i);
+		addChild(heart, 1);
+	}
 
 	//每帧调用update函数
 	scheduleUpdate();
