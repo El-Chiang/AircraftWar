@@ -34,7 +34,7 @@
 #define CREATE_BIG_DELAY 20
 //#define CREATE_RED_DELAY 20
 //#define CREATE_BLUE_DELAY 20
-#define CREATE_UFO_DELAY 2
+#define CREATE_UFO_DELAY 1
 
 //ËÙ¶È
 #define BACKGROUND_SPEED 0.8f

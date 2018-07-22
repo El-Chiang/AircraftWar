@@ -259,9 +259,9 @@ void GameScene::update(float delta) {
 				this->addChild(heart);
 			}
 			if (this->m_ufoType == UFO4)
-			{
 				schedule(schedule_selector(GameScene::createEnemyBullet), TIME_BREAK_2, 10, 0);
-			}
+			if (this->m_ufoType == UFO5)
+				this->schedule(schedule_selector(GameScene::moveEnemy), 0.5f, 20, 0);
 			removableUfos.pushBack(Ufo);
 		}
 	}
